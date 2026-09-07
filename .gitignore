@@ -1,0 +1,41 @@
+# Dependencies
+**/node_modules/
+**/vendor/
+
+# Environment files
+**/.env
+**/.env.*
+!**/.env.example
+
+# Logs and databases
+*.log
+**/*.log
+.phpunit.result.cache
+**/.phpunit.cache/
+127_0_0_1.sql
+
+# Laravel specifics
+server/public/storage
+server/public/hot
+server/public/build
+server/storage/*.key
+server/storage/pail
+
+# Vite & React build
+**/dist/
+**/dist-ssr/
+*.local
+
+# Editor & OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+Homestead.json
+Homestead.yaml

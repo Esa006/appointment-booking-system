@@ -1,0 +1,10 @@
+{
+  "name": "appointment-booking-app",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix client run dev",
+    "client": "npm --prefix client run dev",
+    "server": "php server/artisan serve --port=8000",
+    "test": "cd server && php artisan test"
+  }
+}

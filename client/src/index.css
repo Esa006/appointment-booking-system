@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --appointly-primary: #2563eb;
+  --appointly-primary-hover: #1d4ed8;
+  --appointly-primary-light: #eff6ff;
+  --appointly-primary-border: #bfdbfe;
+  
+  --appointly-bg: #f8fafc;
+  --appointly-card-bg: #ffffff;
+  --appointly-text-dark: #0f172a;
+  --appointly-text-muted: #64748b;
+  
+  --appointly-success: #10b981;
+  --appointly-success-bg: #ecfdf5;
+  --appointly-success-border: #a7f3d0;
+  
+  --appointly-booked: #ef4444;
+  --appointly-booked-bg: #f1f5f9;
+  --appointly-booked-border: #e2e8f0;
+
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  background-color: var(--appointly-bg);
+  color: var(--appointly-text-dark);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glass & Card Effects */
+.appointly-card {
+  background: var(--appointly-card-bg);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease-in-out;
+}
+
+.appointly-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.02);
+}
+
+/* Custom Navigation Tabs */
+.nav-pill-switcher {
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 9999px;
+}
+
+.nav-pill-btn {
+  border-radius: 9999px;
+  padding: 8px 18px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  border: none;
+  background: transparent;
+  color: #64748b;
+}
+
+.nav-pill-btn.active {
+  background: var(--appointly-primary);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+/* Date Pill Styles */
+.date-card-pill {
+  width: 78px;
+  height: 95px;
+  border-radius: 16px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.date-card-pill:hover:not(.active) {
+  border-color: var(--appointly-primary-border);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+}
+
+.date-card-pill.active {
+  background: var(--appointly-primary);
+  border-color: var(--appointly-primary);
+  color: #ffffff !important;
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+}
+
+.date-card-pill.active * {
+  color: #ffffff !important;
+}
+
+/* Slot Card Styles */
+.slot-item-card {
+  border-radius: 14px;
+  padding: 14px 16px;
+  transition: all 0.2s ease;
+  border: 1.5px solid transparent;
+}
+
+.slot-item-card.available {
+  background: #ffffff;
+  border-color: #a7f3d0;
+}
+
+.slot-item-card.available:hover {
+  border-color: var(--appointly-success);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.15);
+  cursor: pointer;
+}
+
+.slot-item-card.booked {
+  background: var(--appointly-booked-bg);
+  border-color: var(--appointly-booked-border);
+  opacity: 0.75;
+}
+
+/* Status Badges */
+.badge-available {
+  color: #059669;
+  font-weight: 600;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-booked {
+  color: #dc2626;
+  font-weight: 600;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Custom Scrollbar for Horizontal Date Selector */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
