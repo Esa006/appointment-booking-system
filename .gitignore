@@ -40,3 +40,6 @@ Thumbs.db
 *.sw?
 Homestead.json
 Homestead.yaml
+
+.vercel
+.env*
