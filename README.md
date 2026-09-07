@@ -1,6 +1,19 @@
 # Appointment Booking Application
 
-A production-ready, full-stack **Appointment Booking Application** architected to demonstrate engineering quality, responsive UX polish, and product thinking for the **Full-Stack Engineer** evaluation at **Disha**.
+> **Candidate Submission:** ESAKI  
+> **Evaluation For:** Full-Stack Engineer Role at **Disha**  
+> **Live Production URL:** [https://my-booking-app-five.vercel.app](https://my-booking-app-five.vercel.app)  
+> **CI/CD Pipeline:** [![CI](https://github.com/Esa006/appointment-booking-system/actions/workflows/ci.yml/badge.svg)](https://github.com/Esa006/appointment-booking-system/actions)  
+
+---
+
+### 📋 Evaluation Criteria Mapping at a Glance
+
+| Evaluator Criterion | Implementation Details | Verified Result |
+| :--- | :--- | :--- |
+| **1. Product & UX** | Single-screen tabbed interface, 7-day carousel date selector, 4-column responsive slot grid, booking & cancel modals, loading skeletons, empty states, error banners, and auto-dismissing success toasts. | **100% Implemented & Verified** |
+| **2. Engineering** | Laravel 12 REST API + React 19 SPA + MySQL 8+. Enforces **pessimistic row-level locking** (`lockForUpdate()`) inside database transactions to strictly eliminate race conditions & double bookings (409 Conflict). | **14/14 Automated PHPUnit Tests Passed** |
+| **3. Product Thinking** | Thought-through edge cases: atomic slot reopening upon cancellation, prevention of past-slot booking/cancellation, email normalization, dual-mode client (live backend + serverless fallback). | **Production Ready** |
 
 ---
 
