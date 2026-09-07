@@ -30,13 +30,19 @@ export default function AppointmentsList({ onOpenCancelModal }) {
 
     try {
       const res = await appointmentService.getAppointmentsByEmail(cleanEmail);
-      if (res.data) {
-        setUpcomingAppointments(res.data.upcoming || []);
-        setPastAppointments(res.data.past || []);
-      } else {
-        setUpcomingAppointments([]);
-        setPastAppointments([]);
+      let upcoming = [];
+      let past = [];
+      if (res && res.data) {
+        if (Array.isArray(res.data)) {
+          upcoming = res.data.filter(a => a.status?.toUpperCase() === 'CONFIRMED' || a.is_upcoming);
+          past = res.data.filter(a => a.status?.toUpperCase() === 'CANCELLED' || (!a.is_upcoming && a.status?.toUpperCase() !== 'CONFIRMED'));
+        } else {
+          upcoming = res.data.upcoming || [];
+          past = res.data.past || [];
+        }
       }
+      setUpcomingAppointments(upcoming);
+      setPastAppointments(past);
     } catch (err) {
       setError(err.message || 'Failed to fetch appointments for this email.');
       setUpcomingAppointments([]);
@@ -189,8 +195,8 @@ export default function AppointmentsList({ onOpenCancelModal }) {
             <div className="row g-3">
               {currentList.map((app) => {
                 const slot = app.slot;
-                const isConfirmed = app.status === 'CONFIRMED';
-                const isCancelled = app.status === 'CANCELLED';
+                const isConfirmed = app.status?.toUpperCase() === 'CONFIRMED' || Boolean(app.is_upcoming);
+                const isCancelled = app.status?.toUpperCase() === 'CANCELLED' || (!Boolean(app.is_upcoming) && app.status?.toUpperCase() !== 'CONFIRMED');
 
                 return (
                   <div key={app.id} className="col-12 col-md-6">

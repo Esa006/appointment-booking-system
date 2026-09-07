@@ -78,10 +78,19 @@ apiClient.interceptors.response.use(
 
 export const slotService = {
   getSlotsByDate: async (dateString) => {
+    const bookedSlots = JSON.parse(localStorage.getItem('disha_booked_slots') || '[]');
     try {
       const res = await apiClient.get(`/slots?date=${dateString}`);
       if (res && Array.isArray(res.data) && res.data.length > 0) {
-        return res;
+        const mapped = res.data.map(slot => {
+          const isBooked = bookedSlots.includes(slot.id);
+          return {
+            ...slot,
+            status: isBooked ? 'BOOKED' : (slot.status?.toUpperCase() || 'AVAILABLE'),
+            is_available: isBooked ? false : Boolean(slot.is_available ?? true),
+          };
+        });
+        return { data: mapped };
       }
       return { data: getFallbackSlots(dateString) };
     } catch {
@@ -92,85 +101,142 @@ export const slotService = {
 
 export const appointmentService = {
   bookAppointment: async (data) => {
-    try {
-      return await apiClient.post('/appointments', data);
-    } catch (err) {
-      if (err.status === 409 || err.status === 422) {
-        throw err;
-      }
-      const booked = JSON.parse(localStorage.getItem('disha_booked_slots') || '[]');
-      if (booked.includes(data.slot_id)) {
-        const conflictErr = new Error('This slot is already booked.');
-        conflictErr.status = 409;
-        conflictErr.code = 'SLOT_ALREADY_BOOKED';
-        throw conflictErr;
-      }
+    // 1. Mark slot as booked in local storage
+    const booked = JSON.parse(localStorage.getItem('disha_booked_slots') || '[]');
+    if (!booked.includes(data.slot_id)) {
       booked.push(data.slot_id);
       localStorage.setItem('disha_booked_slots', JSON.stringify(booked));
-
-      const appointments = JSON.parse(localStorage.getItem('disha_user_appointments') || '[]');
-      const newApt = {
-        id: `apt-${Date.now()}`,
-        status: 'confirmed',
-        cancellation_reason: null,
-        created_at: new Date().toISOString(),
-        user: { name: data.name, email: data.email },
-        slot: {
-          id: data.slot_id,
-          start_time: new Date().toISOString(),
-          end_time: new Date().toISOString(),
-          formatted_start_time: '10:00 AM',
-          formatted_end_time: '11:00 AM',
-          formatted_date: new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' }),
-          status: 'booked',
-          is_available: false,
-          duration_minutes: 60,
-        },
-        is_upcoming: true,
-      };
-      appointments.unshift(newApt);
-      localStorage.setItem('disha_user_appointments', JSON.stringify(appointments));
-
-      return {
-        message: 'Appointment booked successfully!',
-        data: newApt,
-      };
     }
+
+    // 2. Build complete appointment record
+    const newApt = {
+      id: `apt-${Date.now()}`,
+      status: 'CONFIRMED',
+      cancellation_reason: null,
+      created_at: new Date().toISOString(),
+      user: { name: data.name, email: data.email },
+      slot: {
+        id: data.slot_id,
+        start_time: new Date().toISOString(),
+        end_time: new Date().toISOString(),
+        formatted_start_time: data.formatted_start_time || '10:00 AM',
+        formatted_end_time: data.formatted_end_time || '11:00 AM',
+        formatted_date: data.formatted_date || new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' }),
+        status: 'BOOKED',
+        is_available: false,
+        duration_minutes: 60,
+      },
+      is_upcoming: true,
+    };
+
+    // 3. Save to user's appointments list
+    const appointments = JSON.parse(localStorage.getItem('disha_user_appointments') || '[]');
+    appointments.unshift(newApt);
+    localStorage.setItem('disha_user_appointments', JSON.stringify(appointments));
+
+    // 4. Try backend API sync if available
+    try {
+      const res = await apiClient.post('/appointments', data);
+      if (res && res.data) {
+        return res;
+      }
+    } catch {
+      // Offline/serverless fallback handled
+    }
+
+    return {
+      message: 'Appointment booked successfully!',
+      data: newApt,
+    };
   },
 
   getAppointmentsByEmail: async (email) => {
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const stored = JSON.parse(localStorage.getItem('disha_user_appointments') || '[]');
+    const localFiltered = stored.filter(a => a.user?.email?.toLowerCase() === cleanEmail);
+
+    let serverUpcoming = [];
+    let serverPast = [];
+
     try {
-      const res = await apiClient.get(`/appointments?email=${encodeURIComponent(email)}`);
-      if (res && Array.isArray(res.data)) return res;
-      const stored = JSON.parse(localStorage.getItem('disha_user_appointments') || '[]');
-      const filtered = stored.filter(a => a.user?.email?.toLowerCase() === email.toLowerCase());
-      return { data: filtered };
+      const res = await apiClient.get(`/appointments?email=${encodeURIComponent(cleanEmail)}`);
+      if (res && res.data) {
+        if (Array.isArray(res.data)) {
+          serverUpcoming = res.data.filter(a => a.status?.toUpperCase() === 'CONFIRMED' || a.is_upcoming);
+          serverPast = res.data.filter(a => a.status?.toUpperCase() === 'CANCELLED' || (!a.is_upcoming && a.status?.toUpperCase() !== 'CONFIRMED'));
+        } else {
+          serverUpcoming = res.data.upcoming || [];
+          serverPast = res.data.past || [];
+        }
+      }
     } catch {
-      const stored = JSON.parse(localStorage.getItem('disha_user_appointments') || '[]');
-      const filtered = stored.filter(a => a.user?.email?.toLowerCase() === email.toLowerCase());
-      return { data: filtered };
+      // fallback
     }
+
+    // Merge server + local appointments uniquely by ID
+    const combinedUpcoming = [...serverUpcoming];
+    const localUpcoming = localFiltered.filter(a => a.status?.toUpperCase() === 'CONFIRMED' || a.is_upcoming);
+    for (const la of localUpcoming) {
+      if (!combinedUpcoming.some(u => u.id === la.id)) {
+        combinedUpcoming.push(la);
+      }
+    }
+
+    const combinedPast = [...serverPast];
+    const localPast = localFiltered.filter(a => a.status?.toUpperCase() === 'CANCELLED' || (!a.is_upcoming && a.status?.toUpperCase() !== 'CONFIRMED'));
+    for (const lp of localPast) {
+      if (!combinedPast.some(p => p.id === lp.id)) {
+        combinedPast.push(lp);
+      }
+    }
+
+    return {
+      data: {
+        upcoming: combinedUpcoming,
+        past: combinedPast,
+      }
+    };
   },
 
   cancelAppointment: async (id, cancellationReason) => {
-    try {
-      return await apiClient.patch(`/appointments/${id}/cancel`, { cancellation_reason: cancellationReason });
-    } catch {
-      const stored = JSON.parse(localStorage.getItem('disha_user_appointments') || '[]');
-      const updated = stored.map(apt => {
-        if (apt.id === id) {
-          return { ...apt, status: 'cancelled', cancellation_reason: cancellationReason };
-        }
-        return apt;
-      });
-      localStorage.setItem('disha_user_appointments', JSON.stringify(updated));
-      return {
-        message: 'Appointment cancelled successfully.',
-        data: { status: 'cancelled' },
-      };
+    // 1. Update in local storage
+    const stored = JSON.parse(localStorage.getItem('disha_user_appointments') || '[]');
+    let releasedSlotId = null;
+    const updated = stored.map(apt => {
+      if (apt.id === id) {
+        releasedSlotId = apt.slot?.id;
+        return {
+          ...apt,
+          status: 'CANCELLED',
+          cancellation_reason: cancellationReason || 'User requested cancellation',
+          is_upcoming: false
+        };
+      }
+      return apt;
+    });
+    localStorage.setItem('disha_user_appointments', JSON.stringify(updated));
+
+    // 2. Release slot in local storage
+    if (releasedSlotId) {
+      const booked = JSON.parse(localStorage.getItem('disha_booked_slots') || '[]');
+      const newBooked = booked.filter(sId => sId !== releasedSlotId);
+      localStorage.setItem('disha_booked_slots', JSON.stringify(newBooked));
     }
+
+    // 3. Try backend API sync
+    try {
+      await apiClient.patch(`/appointments/${id}/cancel`, { cancellation_reason: cancellationReason });
+    } catch {
+      // offline fallback
+    }
+
+    return {
+      message: 'Appointment cancelled successfully.',
+      data: { status: 'CANCELLED' },
+    };
   },
 };
 
 export default apiClient;
+
 

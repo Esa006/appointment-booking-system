@@ -46,6 +46,9 @@ export default function BookingModal({ slot, selectedDate, isOpen, onClose, onBo
         slot_id: slot.id,
         name: name.trim(),
         email: email.trim().toLowerCase(),
+        formatted_start_time: slot.formatted_start_time || slot.start_time,
+        formatted_end_time: slot.formatted_end_time || slot.end_time,
+        formatted_date: selectedDate || slot.formatted_date,
       });
     } catch (err) {
       if (err.status === 409 || err.code === 'SLOT_ALREADY_BOOKED') {

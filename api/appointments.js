@@ -1,4 +1,4 @@
-﻿export default function handler(req, res) {
+export default function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -25,7 +25,7 @@
 
     const appointment = {
       id: `apt-${Date.now()}`,
-      status: 'confirmed',
+      status: 'CONFIRMED',
       cancellation_reason: null,
       created_at: new Date().toISOString(),
       user: { id: 1, name, email },
@@ -33,10 +33,10 @@
         id: slot_id,
         start_time: new Date().toISOString(),
         end_time: new Date().toISOString(),
-        formatted_start_time: '10:00 AM',
-        formatted_end_time: '11:00 AM',
-        formatted_date: new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' }),
-        status: 'booked',
+        formatted_start_time: req.body.formatted_start_time || '10:00 AM',
+        formatted_end_time: req.body.formatted_end_time || '11:00 AM',
+        formatted_date: req.body.formatted_date || new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' }),
+        status: 'BOOKED',
         is_available: false,
         duration_minutes: 60
       },
@@ -50,13 +50,13 @@
   }
 
   if (req.method === 'GET') {
-    return res.status(200).json({ data: [] });
+    return res.status(200).json({ data: { upcoming: [], past: [] } });
   }
 
   if (req.method === 'PATCH') {
     return res.status(200).json({
       message: 'Appointment cancelled successfully.',
-      data: { status: 'cancelled' }
+      data: { status: 'CANCELLED' }
     });
   }
 
