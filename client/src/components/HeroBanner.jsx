@@ -53,12 +53,17 @@ export default function HeroBanner() {
         {/* Right Graphic Banner */}
         <div className="col-lg-5 col-xl-4 text-center d-none d-lg-block">
           <div className="card border-0 bg-white shadow-sm rounded-4 p-4 text-center">
-            <div className="bg-primary-subtle rounded-circle p-4 d-inline-flex mb-3">
-              <i className="bi bi-calendar-check-fill text-primary display-4"></i>
+            <div className="mb-3">
+              <img
+                src="/logo.png"
+                alt="my-booking-app"
+                style={{ width: '100px', height: '100px', objectFit: 'contain' }}
+                className="rounded-circle shadow-sm"
+              />
             </div>
-            <h6 className="fw-bold text-dark mb-1">Good Health Brighter Tomorrow</h6>
+            <h6 className="fw-bold text-dark mb-1">my-booking-app</h6>
             <span className="badge bg-primary-subtle text-primary rounded-pill px-3 py-2">
-              Small Steps, Healthier Days ♥
+              Book • Manage • Stay Organized
             </span>
           </div>
         </div>

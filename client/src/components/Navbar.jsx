@@ -13,12 +13,15 @@ export default function Navbar({ activeTab, setActiveTab }) {
           }}
           className="navbar-brand d-flex align-items-center gap-2 text-decoration-none"
         >
-          <div className="bg-primary text-white rounded-3 p-2 d-flex align-items-center justify-content-center">
-            <i className="bi bi-calendar-event-fill fs-5"></i>
-          </div>
+          <img
+            src="/logo.png"
+            alt="my-booking-app"
+            style={{ width: '42px', height: '42px', objectFit: 'contain' }}
+            className="rounded-circle shadow-sm"
+          />
           <div>
-            <h5 className="fw-extrabold text-dark mb-0 lh-1">Appointly</h5>
-            <small className="text-muted fs-8">Your Time. Our Priority.</small>
+            <h5 className="fw-extrabold text-dark mb-0 lh-1">my-booking-app</h5>
+            <small className="text-muted fs-8">Book • Manage • Stay Organized</small>
           </div>
         </a>
 
