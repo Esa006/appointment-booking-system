@@ -1,4 +1,4 @@
-﻿export default function handler(req, res) {
+export default function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -33,7 +33,7 @@
     formatted_start_time: h.startLabel,
     formatted_end_time: h.endLabel,
     formatted_date: formattedDate,
-    status: 'available',
+    status: 'AVAILABLE',
     is_available: true,
     is_past: false,
     duration_minutes: 60,

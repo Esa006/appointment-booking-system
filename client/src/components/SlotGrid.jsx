@@ -18,8 +18,8 @@ export default function SlotGrid({ slots, onSelectSlot }) {
       {/* 4-Column Grid */}
       <div className="row g-3">
         {slots.map((slot) => {
-          const isAvailable = slot.status === 'AVAILABLE' && !slot.is_past;
-          const isPast = slot.is_past;
+          const isAvailable = Boolean(slot.is_available !== undefined ? slot.is_available : (slot.status?.toUpperCase() === 'AVAILABLE' && !slot.is_past));
+          const isPast = Boolean(slot.is_past);
 
           return (
             <div key={slot.id} className="col-12 col-sm-6 col-md-4 col-lg-3">

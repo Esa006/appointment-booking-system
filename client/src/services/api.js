@@ -38,7 +38,7 @@ function getFallbackSlots(dateString) {
       formatted_start_time: h.startLabel,
       formatted_end_time: h.endLabel,
       formatted_date: formattedDate,
-      status: isBooked ? 'booked' : 'available',
+      status: isBooked ? 'BOOKED' : 'AVAILABLE',
       is_available: !isBooked,
       is_past: false,
       duration_minutes: 60,
